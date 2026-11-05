@@ -225,9 +225,11 @@ export async function ensureEmailRoutingRuleToWorker(
 	const normalized = address.toLowerCase();
 	const workerName = getEmailWorkerName();
 	const rules = await listEmailRoutingRules(env, zoneId);
-	const existing = rules.find((rule) => isWorkerRouteForAddress(rule, normalized, workerName));
+	const existing = rules.find((rule) =>
+		rule.matchers?.some((matcher) => matcher.type === "literal" && matcher.field === "to" && matcher.value?.toLowerCase() === normalized)
+	);
 
-	if (existing?.enabled) return existing;
+	if (existing && isWorkerRouteForAddress(existing, normalized, workerName) && existing.enabled) return existing;
 	if (existing?.id) {
 		changes?.push({ zoneId, ruleId: existing.id, previous: existing });
 		return cfRequest<CfEmailRoutingRule>(

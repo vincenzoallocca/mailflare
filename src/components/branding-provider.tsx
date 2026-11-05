@@ -27,7 +27,7 @@ export function BrandingProvider({ children, initialBranding }: { children: Reac
 	return (
 		<BrandingContext.Provider value={{
 			...branding,
-			iconUrl: branding.hasCustomIcon ? `/api/branding/icon?v=${iconVersion}` : "/icon-96.png",
+			iconUrl: branding.hasCustomIcon ? `/api/branding/icon?v=${iconVersion}` : "/haste-mark.svg",
 			refreshBranding,
 		}}>
 			{children}
@@ -38,7 +38,7 @@ export function BrandingProvider({ children, initialBranding }: { children: Reac
 export function useBranding() {
 	return useContext(BrandingContext) ?? {
 		...DEFAULT_BRANDING,
-		iconUrl: "/icon-96.png",
+		iconUrl: "/haste-mark.svg",
 		refreshBranding: async () => undefined,
 	};
 }

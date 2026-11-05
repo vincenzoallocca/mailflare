@@ -25,6 +25,7 @@ import { runScheduledDatabaseBackup } from "./src/lib/backups/runner";
 import { processAgentDraftJob } from "./src/lib/agent/jobs/utils";
 import { runAgentMaintenance } from "./src/lib/agent/maintenance";
 import { runTrashRetention } from "./src/lib/email/trash-retention";
+import { getStorageUsageSummary } from "./src/lib/storage/quota-guard";
 import { runDriveTrashRetention } from "./src/lib/drive/retention";
 import { runAccountRetention } from "./src/lib/accounts/deletion";
 import { runJmapChangeRetention } from "./src/lib/jmap/changes";
@@ -61,6 +62,12 @@ export default {
 	async email(message: ForwardableEmailMessage, rawEnv: CloudflareEnv, ctx: ExecutionContext) {
 		const env = withDatabase(withStorage(rawEnv));
 		try {
+			const quota = await getStorageUsageSummary(env);
+			if (quota.isSuspended) {
+				message.setReject("Message rejected: Mailbox storage safety cap reached (8 GB). Inbound suspended to prevent storage costs.");
+				return;
+			}
+
 			if (message.rawSize > 25 * 1024 * 1024) {
 				message.setReject("Message rejected: raw email exceeds the 25 MiB receiving limit. Send a download link instead.");
 				return;

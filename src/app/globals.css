@@ -3,35 +3,100 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-	--color-neutral-500: #6b6b6b;
-	--background: #f6f8fc;
-	--foreground: #202124;
-	--card: #ffffff;
-	--muted: #eef3fb;
-	--border: #dadce0;
-	--primary: #0b57d0;
-	--primary-foreground: #ffffff;
+	--color-neutral-50: #f2f0eb;
+	--color-neutral-100: #e6e3dc;
+	--color-neutral-200: #393734;
+	--color-neutral-300: #4a4742;
+	--color-neutral-400: #8f8b83;
+	--color-neutral-500: #aaa59b;
+	--color-neutral-600: #bdb8ae;
+	--color-neutral-700: #d0cbc1;
+	--color-neutral-800: #e2ded5;
+	--color-neutral-900: #f2f0eb;
+	--color-white: #101010;
+	--color-black: #f2f0eb;
+	--color-blue-50: #2a0d08;
+	--color-blue-100: #43130b;
+	--color-blue-200: #6e1d10;
+	--color-blue-300: #9b2b18;
+	--color-blue-400: #bd3b23;
+	--color-blue-500: #d4200a;
+	--color-blue-600: #d4200a;
+	--color-blue-700: #ef4a2d;
+	--color-blue-800: #ff765e;
+	--color-blue-900: #ff9a86;
+	--color-blue-950: #f2f0eb;
+	--background: #0a0a0a;
+	--foreground: #f2f0eb;
+	--card: #101010;
+	--muted: #161616;
+	--border: rgba(242, 240, 235, 0.14);
+	--primary: #d4200a;
+	--primary-foreground: #f2f0eb;
 }
 
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--no-font-mono: var(--font-geist-mono);
+	--font-sans: "Roboto Flex", system-ui, sans-serif;
+	--no-font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@font-face {
+	font-family: "Roboto Flex";
+	src: url("/roboto-flex-wdth-wght.woff2") format("woff2");
+	font-weight: 100 1000;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "JetBrains Mono";
+	src: url("/jetbrains-mono-wght.woff2") format("woff2");
+	font-weight: 400 700;
+	font-style: normal;
+	font-display: swap;
 }
 
 body {
 	background: var(--background);
 	color: var(--foreground);
-	font-family: var(--font-geist-sans), system-ui, sans-serif;
+	font-family: "Roboto Flex", system-ui, sans-serif;
+	letter-spacing: 0.01em;
 }
 
 pre {
-	font-family: var(--font-geist-sans), system-ui, sans-serif;
+	font-family: "JetBrains Mono", ui-monospace, monospace;
 }
 
 .text {
-	font-family: var(--font-geist-sans), system-ui, sans-serif;
+	font-family: "Roboto Flex", system-ui, sans-serif;
+}
+
+body > * {
+	background-color: var(--background);
+}
+
+[class*="bg-[#f6f8fc]"],
+[class*="bg-[#f1f4fa]"] {
+	background-color: var(--background) !important;
+}
+
+[class~="bg-white"] {
+	background-color: var(--card) !important;
+}
+
+[class*="border-neutral-"] {
+	border-color: var(--border) !important;
+}
+
+a {
+	color: inherit;
+}
+
+::selection {
+	background: rgba(212, 32, 10, 0.35);
+	color: #f2f0eb;
 }
 
 @keyframes dialog-overlay-show {
@@ -488,6 +553,98 @@ button {
 .dark .bg-teal-600 { background-color: oklch(60% 0.118 184.704); }
 .dark .bg-pink-600 { background-color: oklch(59.2% 0.249 0.584); }
 .dark .bg-orange-600 { background-color: oklch(64.6% 0.222 41.116); }
+
+/* HASTE visual system */
+.dark {
+	--background: #0a0a0a;
+	--foreground: #f2f0eb;
+	--card: #101010;
+	--muted: #161616;
+	--border: rgba(242, 240, 235, 0.14);
+	--primary: #d4200a;
+	--primary-foreground: #f2f0eb;
+	--color-white: #101010;
+	--color-black: #f2f0eb;
+	--color-neutral-50: #161616;
+	--color-neutral-100: #1d1d1d;
+	--color-neutral-200: #393734;
+	--color-neutral-300: #4a4742;
+	--color-neutral-400: #8f8b83;
+	--color-neutral-500: #aaa59b;
+	--color-neutral-600: #bdb8ae;
+	--color-neutral-700: #d0cbc1;
+	--color-neutral-800: #e2ded5;
+	--color-neutral-900: #f2f0eb;
+	--color-neutral-950: #ffffff;
+	--color-blue-50: #2a0d08;
+	--color-blue-100: #43130b;
+	--color-blue-200: #6e1d10;
+	--color-blue-300: #9b2b18;
+	--color-blue-400: #bd3b23;
+	--color-blue-500: #d4200a;
+	--color-blue-600: #d4200a;
+	--color-blue-700: #ef4a2d;
+	--color-blue-800: #ff765e;
+	--color-blue-900: #ff9a86;
+	--color-blue-950: #f2f0eb;
+	color-scheme: dark;
+}
+
+.dark body,
+.dark body > * {
+	background-color: var(--background);
+	color: var(--foreground);
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+	background-color: #111;
+	border-color: var(--border);
+	color: var(--foreground);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+	color: #8f8b83;
+}
+
+.dark :focus-visible {
+	outline: 2px solid #61eb34;
+	outline-offset: 2px;
+}
+
+.dark ::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+	background: #0a0a0a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+	background: #393734;
+	border: 2px solid #0a0a0a;
+	border-radius: 999px;
+}
+
+.dark .bg-blue-600,
+.dark .bg-blue-700,
+.dark .hover\:bg-blue-700:hover {
+	background-color: #d4200a;
+}
+
+.dark .text-blue-600,
+.dark .text-blue-700,
+.dark .text-blue-800 {
+	color: #ff765e;
+}
+
+.dark .hover\:text-blue-700:hover,
+.dark .hover\:text-blue-800:hover {
+	color: #ff9a86;
+}
 /* Fixed-hex backgrounds (page, panels) and their hover: variants (inbox rows, mailbox selector) */
 .dark .bg-\[\#f6f8fc\], .dark .bg-\[\#f7f9fc\] { background-color: #202124; }
 .dark .bg-\[\#f2f6fc\], .dark .bg-\[\#f1f4fa\], .dark .bg-\[\#f0f3f9\] { background-color: #303134; }

@@ -3,6 +3,14 @@
 	"name": "mailflare",
 	"main": "./worker.ts",
 	"compatibility_date": "2026-05-20",
+	"workers_dev": false,
+	"preview_urls": false,
+	"routes": [
+		{
+			"pattern": "mail.haste.it",
+			"custom_domain": true
+		},
+	],
 	"keep_vars": true,
 	"compatibility_flags": [
 		"nodejs_compat",
@@ -38,7 +46,10 @@
 		},
 	],
 	"triggers": {
-		"crons": ["0 2 * * *", "*/5 * * * *"],
+		"crons": [
+			"0 2 * * *",
+			"*/5 * * * *"
+		],
 	},
 	"ratelimits": [
 		{
@@ -52,17 +63,25 @@
 		{
 			"name": "DEVICE_LOGIN_RATE_LIMIT",
 			"namespace_id": "1003",
-			"simple": { "limit": 10, "period": 60 },
+			"simple": {
+				"limit": 10,
+				"period": 60
+			},
 		},
 		{
 			"name": "AGENT_RATE_LIMIT",
 			"namespace_id": "1002",
-			"simple": { "limit": 120, "period": 60 },
+			"simple": {
+				"limit": 120,
+				"period": 60
+			},
 		},
 	],
 	"observability": {
 		"enabled": true,
-		"traces": { "enabled": true },
+		"traces": {
+			"enabled": true
+		},
 	},
 	"upload_source_maps": true,
 	"send_email": [
@@ -71,19 +90,23 @@
 			"remote": false,
 		},
 	],
-	"ai": { "binding": "AI", "remote": true },
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
 	"d1_databases": [
 		{
 			"binding": "DB",
 			"database_name": "mailflare",
-			"migrations_dir": "drizzle/migrations",
-		},
+			"database_id": "6e5d9025-5926-4549-9019-3b1c4c45b2ab",
+			"migrations_dir": "drizzle/migrations"
+		}
 	],
 	"r2_buckets": [
 		{
 			"binding": "BUCKET",
-			"bucket_name": "mailflare-raw",
-		},
+			"bucket_name": "mailflare-raw"
+		}
 	],
 	"queues": {
 		"producers": [
