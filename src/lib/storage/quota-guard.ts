@@ -136,18 +136,22 @@ export function wrapBucketWithQuotaGuard(bucket: R2Bucket, env: CloudflareEnv): 
 	return new Proxy(bucket, {
 		get(target, property, receiver) {
 			if (property === "put") {
-				return async (key: string, value: unknown, options?: unknown) => {
+				return async (
+					key: string,
+					value: Parameters<R2Bucket["put"]>[1],
+					options?: Parameters<R2Bucket["put"]>[2]
+				) => {
 					const size = estimatePayloadSize(value);
 					await assertStorageQuota(env, size);
-					return (target.put as any)(key, value, options);
+					return target.put(key, value, options);
 				};
 			}
 
 			if (property === "createMultipartUpload") {
-				return async (key: string, options?: unknown) => {
+				return async (key: string, options?: Parameters<R2Bucket["createMultipartUpload"]>[1]) => {
 					// Check quota with default minimum chunk reserve (5 MB)
 					await assertStorageQuota(env, 5 * 1024 * 1024);
-					return (target.createMultipartUpload as any)(key, options);
+					return target.createMultipartUpload(key, options);
 				};
 			}
 
