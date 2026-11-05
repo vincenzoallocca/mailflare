@@ -8,7 +8,8 @@ const proxies = new WeakSet<object>();
 /**
  * Returns env with BUCKET served by Backblaze B2 (B2_*) or AWS S3 (S3_*) when configured; otherwise env unchanged
  * (the native R2 binding on Workers). Every caller reads `env.BUCKET`, so this one place decides where objects live
- * AND enforces the 8.0 GB hard safety cap to guarantee Cloudflare R2 free tier is never exceeded.
+ * AND enforces the 8.0 GB application safety cap. Account-wide Cloudflare R2 usage and
+ * operation counters still need to be monitored separately.
  */
 export function withStorage(env: CloudflareEnv): CloudflareEnv {
 	if (proxies.has(env)) return env;

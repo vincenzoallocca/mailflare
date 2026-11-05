@@ -18,6 +18,7 @@ import { ensureTrackingToken, getTrackingHostForSender } from "@/lib/tracking/op
 import { setFollowUp } from "@/lib/follow-ups/service";
 import { buildTrackingPixelUrl, injectTrackingPixel, resolveTrackingOrigin } from "@/lib/tracking/open-tracking-utils";
 import { getComposePreferences } from "@/lib/compose/preferences";
+import { assertStorageQuota } from "@/lib/storage/quota-guard";
 
 export type SendEmailInput = {
 	userId: string;
@@ -83,6 +84,9 @@ export async function sendEmail(
 	env: CloudflareEnv,
 	input: SendEmailInput,
 ): Promise<{ messageId: string; scheduled?: boolean; undoSeconds?: number; undoRemainingMs?: number; scheduledAt?: string }> {
+	// Keep outbound delivery closed when storage usage cannot be verified or the
+	// safety cap has been reached, including messages without attachments.
+	await assertStorageQuota(env);
 	const db = getDb(env);
 	const sender = await getAuthorizedSenderAddress(env, input);
 	const attachments = input.attachments ?? [];
@@ -372,6 +376,7 @@ function claimJob(db: ReturnType<typeof getDb>, jobId: string) {
  * Returns false when the message has already left the queue.
  */
 export async function sendScheduledMessageNow(env: CloudflareEnv, messageId: string): Promise<boolean> {
+	await assertStorageQuota(env);
 	const db = getDb(env);
 	const [job] = await db
 		.select({ id: outboundJobs.id, payload: outboundJobs.payload })
@@ -392,6 +397,7 @@ export async function processOutboundQueue(
 	env: CloudflareEnv,
 	payload: OutboundQueueMessage,
 ): Promise<void> {
+	await assertStorageQuota(env);
 	const db = getDb(env);
 	const [job] = await db
 		.select({ status: outboundJobs.status, payload: outboundJobs.payload })

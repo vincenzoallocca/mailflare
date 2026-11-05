@@ -7,6 +7,9 @@ import { messageAttachments, driveItems, backups } from "@/db/schema";
  * - Free Tier limit: 10 GB (10,737,418,240 bytes)
  * - Hard Safety Cap: 8.0 GB (Auto-suspension triggers here, leaving a strict 2.0 GB safety buffer)
  * - Warning Cap: 6.5 GB (Alert threshold)
+ *
+ * This is an application-level guard for objects represented in the database.
+ * Cloudflare account-wide R2 operation usage must still be monitored separately.
  */
 export const R2_FREE_TIER_BYTES = 10 * 1024 * 1024 * 1024;
 export const R2_HARD_SAFETY_CAP_BYTES = 8 * 1024 * 1024 * 1024;
@@ -29,6 +32,8 @@ export interface StorageUsageSummary {
 	percentageOfHardCap: number;
 	isWarning: boolean;
 	isSuspended: boolean;
+	isUnknown: boolean;
+	blockReason?: string;
 }
 
 let cachedUsage: { timestamp: number; summary: StorageUsageSummary } | null = null;
@@ -86,23 +91,30 @@ export async function getStorageUsageSummary(env: CloudflareEnv, forceFresh = fa
 			percentageOfHardCap,
 			isWarning,
 			isSuspended,
+			isUnknown: false,
 		};
 
 		cachedUsage = { timestamp: now, summary };
 		return summary;
 	} catch (error) {
-		console.warn("[QuotaGuard] Impossibile calcolare l'uso storage, fallback conservativo:", error);
-		return {
-			totalUsedBytes: 0,
-			totalUsedMb: 0,
-			totalUsedGb: 0,
+		console.error("[QuotaGuard] Impossibile verificare l'uso storage: tutte le nuove scritture vengono bloccate.", error);
+		const summary: StorageUsageSummary = {
+			// Unknown usage is treated as fully used. Returning zero here would make
+			// a database outage an unsafe path to create new R2 objects.
+			totalUsedBytes: R2_HARD_SAFETY_CAP_BYTES,
+			totalUsedMb: 8 * 1024,
+			totalUsedGb: 8,
 			hardCapBytes: R2_HARD_SAFETY_CAP_BYTES,
 			hardCapGb: 8.0,
 			freeTierBytes: R2_FREE_TIER_BYTES,
-			percentageOfHardCap: 0,
-			isWarning: false,
-			isSuspended: false,
+			percentageOfHardCap: 100,
+			isWarning: true,
+			isSuspended: true,
+			isUnknown: true,
+			blockReason: "Uso storage non verificabile: operazioni di scrittura sospese.",
 		};
+		cachedUsage = { timestamp: now, summary };
+		return summary;
 	}
 }
 
@@ -121,16 +133,17 @@ export function estimatePayloadSize(value: unknown): number {
  */
 export async function assertStorageQuota(env: CloudflareEnv, incomingBytes = 0): Promise<void> {
 	const summary = await getStorageUsageSummary(env);
-	if (summary.isSuspended || summary.totalUsedBytes + incomingBytes >= R2_HARD_SAFETY_CAP_BYTES) {
+	if (summary.isSuspended || summary.totalUsedBytes + Math.max(0, incomingBytes) >= R2_HARD_SAFETY_CAP_BYTES) {
 		throw new StorageQuotaExceededError(
+			summary.blockReason ??
 			`Sospensione di sicurezza attiva: capacità di sicurezza di 8 GB superata (${summary.totalUsedGb} GB usati). Operazione bloccata per evitare costi Cloudflare R2.`
 		);
 	}
 }
 
 /**
- * Wraps an R2Bucket instance with an automatic circuit-breaker proxy that intercepts `put`
- * and `createMultipartUpload` to guarantee no writes ever push storage into the paid tier.
+ * Wraps an R2Bucket instance with an automatic circuit-breaker proxy for new writes.
+ * Deletes remain available so an administrator can recover from a suspension.
  */
 export function wrapBucketWithQuotaGuard(bucket: R2Bucket, env: CloudflareEnv): R2Bucket {
 	return new Proxy(bucket, {
