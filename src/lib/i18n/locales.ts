@@ -47,5 +47,5 @@ export const locales = {
 } satisfies Record<string, LocaleEntry>;
 
 export type Locale = keyof typeof locales;
-export const DEFAULT_LOCALE = "en" satisfies Locale;
+export const DEFAULT_LOCALE = "it" satisfies Locale;
 export const supportedLocales = Object.keys(locales) as Locale[];

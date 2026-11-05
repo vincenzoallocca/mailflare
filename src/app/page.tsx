@@ -3,7 +3,6 @@ import Link from "next/link";
 import { heroMessages, sidebarItems } from "./utils";
 import { Inbox, Mail, Search, ShieldCheck } from "@/components/icons";
 import { getServerTranslator } from "@/lib/i18n/server";
-import { LanguageSelector } from "@/components/language-selector";
 import { getHomeBranding } from "./home-server-utils";
 import { HomeAuthProvider } from "./home-auth";
 import { HomeHeaderActions } from "./home-header-actions";
@@ -47,9 +46,6 @@ export default async function HomePage() {
 				</nav> */}
 
         <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
-            <LanguageSelector variant="text" />
-          </div>
           <HomeHeaderActions />
         </div>
       </header>

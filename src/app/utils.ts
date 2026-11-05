@@ -63,8 +63,5 @@ export function getHomeActions(isLoggedIn: boolean): HomeAction[] {
 		return [{ href: "/inbox", labelKey: "home.dashboard", variant: "default" }];
 	}
 
-	return [
-		{ href: "/login", labelKey: "home.logIn", variant: "outline" },
-		{ href: "/setup", labelKey: "home.createAccount", variant: "default" },
-	];
+	return [{ href: "/login", labelKey: "home.logIn", variant: "default" }];
 }
